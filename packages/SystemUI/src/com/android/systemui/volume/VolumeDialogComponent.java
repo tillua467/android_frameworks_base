@@ -40,6 +40,8 @@ import com.android.systemui.plugins.VolumeDialogController;
 import com.android.systemui.qs.tiles.DndTile;
 import com.android.systemui.statusbar.policy.ConfigurationController;
 import com.android.systemui.statusbar.policy.ExtensionController;
+import com.android.systemui.tristate.TriStateUiController;
+import com.android.systemui.tristate.TriStateUiControllerImpl;
 import com.android.systemui.tuner.TunerService;
 
 import java.io.PrintWriter;
