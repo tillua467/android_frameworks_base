@@ -1630,6 +1630,9 @@ public class ActivityManagerService extends IActivityManager.Stub
 
     private boolean mThreeFingerGestureActive;
 
+    final SwipeToScreenshotObserver mSwipeToScreenshotObserver;
+    private boolean mIsSwipeToScrenshotEnabled;
+
     /**
      * Used to notify activity lifecycle events.
      */
@@ -2517,6 +2520,7 @@ public class ActivityManagerService extends IActivityManager.Stub
         mComponentAliasResolver = new ComponentAliasResolver(this);
         mApplicationSharedMemoryReadOnlyFd = null;
         sCreatorTokenCacheCleaner = new Handler(mHandlerThread.getLooper());
+        mSwipeToScreenshotObserver = null;
     }
 
     // Note: This method is invoked on the main thread but may need to attach various
@@ -2625,6 +2629,7 @@ public class ActivityManagerService extends IActivityManager.Stub
         mPendingStartActivityUids = new PendingStartActivityUids();
         mTraceErrorLogger = new TraceErrorLogger();
         mComponentAliasResolver = new ComponentAliasResolver(this);
+        mSwipeToScreenshotObserver = new SwipeToScreenshotObserver(mHandler, mContext);
         sCreatorTokenCacheCleaner = new Handler(mHandlerThread.getLooper());
         try {
             mApplicationSharedMemoryReadOnlyFd =
@@ -9095,6 +9100,7 @@ public class ActivityManagerService extends IActivityManager.Stub
         }
         mAppErrors.loadAppsNotReportingCrashesFromConfig(res.getString(
                 com.android.internal.R.string.config_appsNotReportingCrashes));
+        mSwipeToScreenshotObserver.registerObserver();
     }
 
     /**
@@ -19272,6 +19278,32 @@ public class ActivityManagerService extends IActivityManager.Stub
         }
     }
 
+    private class SwipeToScreenshotObserver extends ContentObserver {
+
+        private final Context mContext;
+
+        public SwipeToScreenshotObserver(Handler handler, Context context) {
+            super(handler);
+            mContext = context;
+        }
+
+        public void registerObserver() {
+            mContext.getContentResolver().registerContentObserver(
+                    Settings.System.getUriFor(Settings.System.THREE_FINGER_GESTURE),
+                    false, this, UserHandle.USER_ALL);
+            update();
+        }
+
+        private void update() {
+            mIsSwipeToScrenshotEnabled = Settings.System.getIntForUser(mContext.getContentResolver(),
+                    Settings.System.THREE_FINGER_GESTURE, 0, UserHandle.USER_CURRENT) == 1;
+        }
+
+        public void onChange(boolean selfChange) {
+            update();
+        }
+    }
+
     @Override
     public boolean isAppFreezerSupported() {
         final long token = Binder.clearCallingIdentity();
@@ -19425,6 +19457,12 @@ public class ActivityManagerService extends IActivityManager.Stub
         return mFreezer;
     }
 
+    public boolean isSwipeToScreenshotGestureActive() {
+        synchronized (this) {
+            return mIsSwipeToScrenshotEnabled && SystemProperties.getBoolean("sys.android.screenshot", false);
+        }
+    }
+    
     // Set of IntentCreatorToken objects that are currently active.
     private static final Map<IntentCreatorToken.Key, WeakReference<IntentCreatorToken>>
             sIntentCreatorTokenCache = new ConcurrentHashMap<>();
