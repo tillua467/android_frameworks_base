@@ -111,6 +111,7 @@ public class PixelPropsUtils {
 
         String[] packagesToChangeRecentPixel  = {
             "com.google.android.apps.aiwallpapers",
+            "com.android.vending",
             "com.google.android.apps.bard",
             "com.google.android.apps.customization.pixel",
             "com.google.android.apps.emojiwallpaper",
