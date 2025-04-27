@@ -313,6 +313,7 @@ public class BatteryMeterView extends LinearLayout implements DarkReceiver {
         mFullCircleDrawable.setCharging(isCharging);
         mRLandscapeDrawable.setCharging(isCharging());
         mLandscapeDrawable.setCharging(isCharging());
+        mLandscapeDrawableiOS16.setCharging(isCharging());
         mAccessorizedDrawable.setBatteryLevel(level);
         mCircleDrawable.setBatteryLevel(level);
         mFullCircleDrawable.setBatteryLevel(level);
