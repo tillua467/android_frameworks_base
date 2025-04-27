@@ -52,8 +52,6 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.android.systemui.res.R;
-import com.android.systemui.Dependency;
-import com.android.systemui.R;
 import com.android.systemui.tristate.TriStateUiController;
 import com.android.systemui.tristate.TriStateUiController.UserActivityListener;
 import com.android.systemui.plugins.VolumeDialogController;
@@ -61,7 +59,6 @@ import com.android.systemui.plugins.VolumeDialogController.Callbacks;
 import com.android.systemui.plugins.VolumeDialogController.State;
 import com.android.systemui.statusbar.policy.ConfigurationController;
 import com.android.systemui.tuner.TunerService;
-
 
 public class TriStateUiControllerImpl implements TriStateUiController,
         ConfigurationController.ConfigurationListener, TunerService.Tunable {
