@@ -17,35 +17,62 @@ package com.android.systemui.weather
 
 import android.content.Context
 import android.util.AttributeSet
-import androidx.constraintlayout.widget.ConstraintLayout
+import android.view.View
 import android.widget.ImageView
 import android.widget.TextView
+import androidx.constraintlayout.widget.ConstraintLayout
 import com.android.systemui.res.R
 
 class WeatherInfoView @JvmOverloads constructor(
-    context: Context, attrs: AttributeSet? = null, defStyle: Int = 0
-) : ConstraintLayout(context, attrs, defStyle) {
+    context: Context,
+    attrs: AttributeSet? = null,
+    defStyleAttr: Int = 0
+) : ConstraintLayout(context, attrs, defStyleAttr) {
 
-    private lateinit var weatherIcon: ImageView
-    private lateinit var weatherTemp: TextView
+    private val weatherIcon: ImageView
+    private val weatherTemp: TextView
+    private val weatherDetails: TextView
 
-    private lateinit var controller: WeatherViewController
-    
-    fun init() {
+    init {
+        inflate(context, R.layout.keyguard_weather_area, this)
         weatherIcon = findViewById(R.id.weather_icon)
         weatherTemp = findViewById(R.id.weather_temp)
-
-        controller = WeatherViewController(
-            context,
-            weatherIcon,
-            weatherTemp,
-            this
-        )
-
-        controller.init()
+        weatherDetails = findViewById(R.id.weather_details)
     }
 
-    fun cleanup() {
-        controller.removeObserver()
+    fun updateWeather(
+        iconResId: Int?,
+        temperature: String?,
+        windSpeed: String?,
+        humidity: String?
+    ) {
+        // Update weather icon
+        if (iconResId != null) {
+            weatherIcon.setImageResource(iconResId)
+            weatherIcon.visibility = View.VISIBLE
+        } else {
+            weatherIcon.visibility = View.GONE
+        }
+
+        // Update temperature
+        if (!temperature.isNullOrEmpty()) {
+            weatherTemp.text = temperature
+            weatherTemp.visibility = View.VISIBLE
+        } else {
+            weatherTemp.visibility = View.GONE
+        }
+
+        // Update wind speed and humidity
+        val details = listOfNotNull(
+            windSpeed?.takeIf { it.isNotBlank() }?.let { "Wind: $it" },
+            humidity?.takeIf { it.isNotBlank() }?.let { "Humidity: $it" }
+        ).joinToString(", ")
+
+        if (details.isNotEmpty()) {
+            weatherDetails.text = details
+            weatherDetails.visibility = View.VISIBLE
+        } else {
+            weatherDetails.visibility = View.GONE
+        }
     }
 }
