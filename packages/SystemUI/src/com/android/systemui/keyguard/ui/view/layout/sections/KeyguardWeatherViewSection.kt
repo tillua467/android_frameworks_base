@@ -18,6 +18,7 @@
 package com.android.systemui.keyguard.ui.view.layout.sections
 
 import android.content.Context
+import android.view.View
 import android.view.ViewGroup
 import androidx.constraintlayout.widget.Barrier
 import androidx.constraintlayout.widget.ConstraintLayout
@@ -26,22 +27,25 @@ import com.android.systemui.customization.R as custR
 import com.android.systemui.keyguard.MigrateClocksToBlueprint
 import com.android.systemui.keyguard.shared.model.KeyguardSection
 import com.android.systemui.res.R
-import com.android.systemui.weather.WeatherInfoView
+import com.android.systemui.statusbar.lockscreen.LockscreenSmartspaceController
 import javax.inject.Inject
+
+import com.android.systemui.weather.WeatherInfoView
 
 class KeyguardWeatherViewSection
 @Inject
 constructor(
     private val context: Context,
+    val smartspaceController: LockscreenSmartspaceController,
 ) : KeyguardSection() {
-
     override fun addViews(constraintLayout: ConstraintLayout) {
         if (!MigrateClocksToBlueprint.isEnabled) return
+        if (!smartspaceController.isCustomWeatherEnabled) return
 
         constraintLayout.findViewById<WeatherInfoView?>(R.id.keyguard_weather_area)?.let { weatherArea ->
             (weatherArea.parent as? ViewGroup)?.removeView(weatherArea)
             constraintLayout.addView(weatherArea)
-            // Removed: weatherArea.init()
+            weatherArea.init()
         }
     }
 
@@ -49,6 +53,7 @@ constructor(
 
     override fun applyConstraints(constraintSet: ConstraintSet) {
         if (!MigrateClocksToBlueprint.isEnabled) return
+        if (!smartspaceController.isCustomWeatherEnabled) return
 
         constraintSet.apply {
             connect(
@@ -66,12 +71,14 @@ constructor(
                 ConstraintSet.END
             )
             constrainHeight(R.id.keyguard_weather_area, ConstraintSet.WRAP_CONTENT)
+
             connect(
                 R.id.keyguard_weather_area,
                 ConstraintSet.TOP,
                 R.id.keyguard_slice_view,
                 ConstraintSet.BOTTOM
             )
+
             createBarrier(
                 R.id.smart_space_barrier_bottom,
                 Barrier.BOTTOM,
@@ -82,6 +89,9 @@ constructor(
     }
 
     override fun removeViews(constraintLayout: ConstraintLayout) {
-        // Removed: weatherArea.cleanup()
+        if (smartspaceController.isCustomWeatherEnabled) return
+        constraintLayout.findViewById<WeatherInfoView?>(R.id.keyguard_weather_area)?.let { weatherArea ->
+            weatherArea.cleanup()
+        }
     }
 }
